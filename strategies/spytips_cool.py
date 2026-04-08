@@ -23,6 +23,21 @@ def spy_tips_cool():
     else:
         return "Error", "Failed to download data from Yahoo Finance after multiple attempts.", "Please try again later manually"
     
+        
+    # If the last row's close is NaN, drop that final row (simpler handling)
+    def _drop_last_if_nan(df, col='close'):
+        if df is None or df.empty:
+            return df
+        try:
+            if pd.isna(df[col].iloc[-1]):
+                return df.iloc[:-1]
+        except Exception:
+            return df
+        return df
+
+    spy = _drop_last_if_nan(spy)
+    tips = _drop_last_if_nan(tips)
+    
     # Extract date index from MultiIndex and set as DataFrame index
     date_level_str_spy = pd.Index([str(x) for x in spy.index.get_level_values("date")])
     date_level_str_tips = pd.Index([str(x) for x in tips.index.get_level_values("date")])
